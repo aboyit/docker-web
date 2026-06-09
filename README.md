@@ -14,6 +14,7 @@ Stack Docker cho nhiều website PHP dùng chung Nginx, MariaDB, Redis và tách
 - Imagick, GD, Intl, MySQLi, PDO MySQL, BCMath, Zip
 - Composer `2`
 - WP-CLI
+- Git, Unzip, Zip, MySQL Client
 
 ## Kiến trúc chạy thực tế
 
@@ -98,6 +99,7 @@ www/
 	- `imagick`
 - Ioncube loader `7.4`
 - Có sẵn `composer` và `wp`
+- Có sẵn `git`, `unzip`, `zip`, `mysql`
 - Chờ `redis` ở trạng thái `service_healthy`
 - Có healthcheck kiểm tra cổng FPM `9000`
 
@@ -118,6 +120,7 @@ www/
 	- `imagick`
 - Ioncube loader `8.1`
 - Có sẵn `composer` và `wp`
+- Có sẵn `git`, `unzip`, `zip`, `mysql`
 - Chờ `redis` ở trạng thái `service_healthy`
 - Có healthcheck kiểm tra cổng FPM `9000`
 
@@ -138,6 +141,7 @@ www/
 	- `imagick`
 - Ioncube loader `8.3`
 - Có sẵn `composer` và `wp`
+- Có sẵn `git`, `unzip`, `zip`, `mysql`
 - Chờ `redis` ở trạng thái `service_healthy`
 - Có healthcheck kiểm tra cổng FPM `9000`
 
@@ -299,6 +303,10 @@ Trong cả `php74`, `php81`, `php83` đều có sẵn:
 
 - `composer`
 - `wp`
+- `git`
+- `unzip`
+- `zip`
+- `mysql`
 
 Ví dụ dùng trong container PHP 8.1:
 

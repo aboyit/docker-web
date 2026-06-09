@@ -3,7 +3,7 @@ FROM php:8.3-fpm-bookworm
 COPY --from=composer:2 /usr/bin/composer /usr/local/bin/composer
 
 RUN apt-get update && apt-get install -y \
-    pkg-config libpng-dev libjpeg-dev libfreetype6-dev zip libzip-dev libicu-dev curl wget libmagickwand-dev git --no-install-recommends \
+    git unzip default-mysql-client pkg-config libpng-dev libjpeg-dev libfreetype6-dev zip libzip-dev libicu-dev curl wget libmagickwand-dev --no-install-recommends \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-install pdo pdo_mysql mysqli gd zip intl bcmath opcache
 

@@ -3,7 +3,7 @@ FROM php:7.4-fpm-bullseye
 COPY --from=composer:2 /usr/bin/composer /usr/local/bin/composer
 
 RUN apt-get update --allow-releaseinfo-change && apt-get install -y \
-    pkg-config libpng-dev libjpeg-dev libfreetype6-dev zip libzip-dev libicu-dev curl wget libmagickwand-dev --no-install-recommends \
+    git unzip default-mysql-client pkg-config libpng-dev libjpeg-dev libfreetype6-dev zip libzip-dev libicu-dev curl wget libmagickwand-dev --no-install-recommends \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-install pdo pdo_mysql mysqli gd zip intl bcmath opcache \
     && pecl install redis-5.3.7 imagick \
