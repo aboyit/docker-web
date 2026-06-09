@@ -1,0 +1,197 @@
+#docker volume create prod_secure_db_data
+services:
+  nginx:
+    image: nginx:1.25-alpine
+    container_name: prod_nginx
+    restart: unless-stopped
+    environment:
+      APP74_DOMAIN: ${APP74_DOMAIN}
+      APP81_DOMAIN: ${APP81_DOMAIN}
+      APP83_DOMAIN: ${APP83_DOMAIN}
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/conf.d:/etc/nginx/templates:ro
+      - ./www:/var/www/html:ro
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    depends_on:
+      php74:
+        condition: service_healthy
+      php81:
+        condition: service_healthy
+      php83:
+        condition: service_healthy
+    networks:
+      - frontend
+
+  php74:
+    build:
+      context: ./php
+      dockerfile: 7.4.Dockerfile
+    container_name: prod_php74
+    restart: unless-stopped
+    volumes:
+      - ./www:/var/www/html
+      - ./php/custom-php.ini:/usr/local/etc/php/conf.d/z-custom-php.ini:ro
+      - ./php/custom-fpm.conf:/usr/local/etc/php-fpm.d/z-custom-fpm.conf:ro
+    depends_on:
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "php -r '$$socket = @fsockopen(\"127.0.0.1\", 9000, $$errno, $$error, 2); if (false === $$socket) { exit(1); } fclose($$socket);'"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    networks:
+      - frontend
+      - backend
+
+  php81:
+    build:
+      context: ./php
+      dockerfile: 8.1.Dockerfile
+    container_name: prod_php81
+    restart: unless-stopped
+    volumes:
+      - ./www:/var/www/html
+      - ./php/custom-php.ini:/usr/local/etc/php/conf.d/z-custom-php.ini:ro
+      - ./php/custom-fpm.conf:/usr/local/etc/php-fpm.d/z-custom-fpm.conf:ro
+    depends_on:
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "php -r '$$socket = @fsockopen(\"127.0.0.1\", 9000, $$errno, $$error, 2); if (false === $$socket) { exit(1); } fclose($$socket);'"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    networks:
+      - frontend
+      - backend
+
+  php83:
+    build:
+      context: ./php
+      dockerfile: 8.3.Dockerfile
+    container_name: prod_php83
+    restart: unless-stopped
+    volumes:
+      - ./www:/var/www/html
+      - ./php/custom-php.ini:/usr/local/etc/php/conf.d/z-custom-php.ini:ro
+      - ./php/custom-fpm.conf:/usr/local/etc/php-fpm.d/z-custom-fpm.conf:ro
+    depends_on:
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "php -r '$$socket = @fsockopen(\"127.0.0.1\", 9000, $$errno, $$error, 2); if (false === $$socket) { exit(1); } fclose($$socket);'"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    networks:
+      - frontend
+      - backend
+
+  mariadb:
+    image: mariadb:10.11
+    container_name: prod_mariadb
+    restart: unless-stopped
+    command: --innodb-buffer-pool-size=1G --innodb-log-file-size=256M --query-cache-size=0 --query-cache-type=0
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+    volumes:
+      - prod_secure_db_data:/var/lib/mysql
+      - ./mariadb/my.cnf:/etc/mysql/conf.d/z-custom.cnf:ro
+    healthcheck:
+      test: ["CMD-SHELL", "mariadb-admin ping -h 127.0.0.1 -u root -p$$MYSQL_ROOT_PASSWORD || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    networks:
+      - backend
+
+  redis:
+    image: redis:7.2-alpine
+    container_name: prod_redis
+    restart: unless-stopped
+    command: redis-server --appendonly yes --maxmemory 256mb --maxmemory-policy allkeys-lru
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 10
+      start_period: 10s
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    networks:
+      - backend
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin:5
+    container_name: prod_phpmyadmin
+    restart: unless-stopped
+    profiles:
+      - admin
+    ports:
+      - "127.0.0.1:8888:80"
+    environment:
+      PMA_HOST: mariadb
+      UPLOAD_LIMIT: 100M
+    depends_on:
+      mariadb:
+        condition: service_healthy
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    networks:
+      - backend
+
+networks:
+  frontend:
+    driver: bridge
+  backend:
+    driver: bridge
+
+volumes:
+  prod_secure_db_data:
+    external: true
+  redis_data:
+    driver: local

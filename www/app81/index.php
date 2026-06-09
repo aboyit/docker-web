@@ -1,0 +1,1 @@
+<?php echo '<h1>PHP 8.1 Stack Operational</h1>'; phpinfo(); ?>
