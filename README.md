@@ -256,6 +256,58 @@ Nếu domain không match server block mong muốn, Nginx sẽ rơi về server 
 - `innodb_flush_method = O_DIRECT`
 - `innodb_io_capacity = 2000`
 
+## Cài đặt trên server
+
+Khuyên dùng thư mục `/srv` để chứa source chạy thực tế trên server.
+
+Ví dụ tạo thư mục project:
+
+```bash
+mkdir -p /srv/web-host
+cd /srv/web-host
+```
+
+Kéo project về server:
+
+```bash
+git clone <git_repo_url> .
+```
+
+Hoặc nếu đã có repo rồi:
+
+```bash
+cd /srv/web-host
+git pull origin main
+```
+
+Tạo file môi trường từ file mẫu:
+
+```bash
+cp .env.example .env
+```
+
+Sau đó sửa `.env` theo đúng máy đang chạy:
+
+- `MYSQL_ROOT_PASSWORD`
+- `MYSQL_DATABASE`
+- `MYSQL_USER`
+- `MYSQL_PASSWORD`
+- `APP74_DOMAIN`
+- `APP81_DOMAIN`
+- `APP83_DOMAIN`
+
+Nếu project có app WordPress hoặc app PHP cần cài vendor bằng Composer thì chạy trong container PHP tương ứng sau khi stack đã lên:
+
+```bash
+docker compose exec php81 sh -lc "cd /var/www/html/app81 && composer install"
+```
+
+Nếu là WordPress có thể dùng thêm WP-CLI:
+
+```bash
+docker compose exec php81 sh -lc "cd /var/www/html/app81 && wp --allow-root core version"
+```
+
 ## Khởi động stack
 
 Tạo volume MariaDB ngoài trước:
@@ -320,6 +372,34 @@ Ví dụ chạy trong thư mục app WordPress:
 ```bash
 docker compose exec php81 sh -lc "cd /var/www/html/app81 && composer install"
 docker compose exec php81 sh -lc "cd /var/www/html/app81 && wp core version --allow-root"
+```
+
+## Import và export database
+
+Project có sẵn 2 script ở root:
+
+- `import.sh`: chọn file `.sql` hoặc `.sql.gz` rồi import vào database chọn lúc chạy
+- `export.sh`: chọn database rồi export ra file `.sql` hoặc `.sql.gz`
+
+Log sẽ được ghi vào thư mục `logs`.
+File export mặc định được lưu trong thư mục `backups`.
+
+Chay import:
+
+```bash
+sh import.sh
+```
+
+Hoac truyen san file dump:
+
+```bash
+sh import.sh /root/web-host/backup/lms.sql
+```
+
+Chay export:
+
+```bash
+sh export.sh
 ```
 
 ## Deploy code

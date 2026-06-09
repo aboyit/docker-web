@@ -1,2 +1,5 @@
 /.env
+/backups
+/logs
 /.vscode
+
