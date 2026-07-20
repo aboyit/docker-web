@@ -5,9 +5,9 @@ services:
     container_name: prod_nginx
     restart: unless-stopped
     environment:
-      APP74_DOMAIN: ${APP74_DOMAIN}
+      # APP74_DOMAIN: ${APP74_DOMAIN}
       APP81_DOMAIN: ${APP81_DOMAIN}
-      APP83_DOMAIN: ${APP83_DOMAIN}
+      # APP83_DOMAIN: ${APP83_DOMAIN}
     ports:
       - "80:80"
       - "443:443"
@@ -30,33 +30,33 @@ services:
     networks:
       - frontend
 
-  php74:
-    build:
-      context: ./php
-      dockerfile: 7.4.Dockerfile
-    container_name: prod_php74
-    restart: unless-stopped
-    volumes:
-      - ./www:/var/www/html
-      - ./php/custom-php.ini:/usr/local/etc/php/conf.d/z-custom-php.ini:ro
-      - ./php/custom-fpm.conf:/usr/local/etc/php-fpm.d/z-custom-fpm.conf:ro
-    depends_on:
-      redis:
-        condition: service_healthy
-    healthcheck:
-      test: ["CMD-SHELL", "php -r '$$socket = @fsockopen(\"127.0.0.1\", 9000, $$errno, $$error, 2); if (false === $$socket) { exit(1); } fclose($$socket);'"]
-      interval: 10s
-      timeout: 5s
-      retries: 10
-      start_period: 10s
-    logging:
-      driver: "json-file"
-      options:
-        max-size: "10m"
-        max-file: "3"
-    networks:
-      - frontend
-      - backend
+  # php74:
+  #   build:
+  #     context: ./php
+  #     dockerfile: 7.4.Dockerfile
+  #   container_name: prod_php74
+  #   restart: unless-stopped
+  #   volumes:
+  #     - ./www:/var/www/html
+  #     - ./php/custom-php.ini:/usr/local/etc/php/conf.d/z-custom-php.ini:ro
+  #     - ./php/custom-fpm.conf:/usr/local/etc/php-fpm.d/z-custom-fpm.conf:ro
+  #   depends_on:
+  #     redis:
+  #       condition: service_healthy
+  #   healthcheck:
+  #     test: ["CMD-SHELL", "php -r '$$socket = @fsockopen(\"127.0.0.1\", 9000, $$errno, $$error, 2); if (false === $$socket) { exit(1); } fclose($$socket);'"]
+  #     interval: 10s
+  #     timeout: 5s
+  #     retries: 10
+  #     start_period: 10s
+  #   logging:
+  #     driver: "json-file"
+  #     options:
+  #       max-size: "10m"
+  #       max-file: "3"
+  #   networks:
+  #     - frontend
+  #     - backend
 
   php81:
     build:
@@ -86,33 +86,33 @@ services:
       - frontend
       - backend
 
-  php83:
-    build:
-      context: ./php
-      dockerfile: 8.3.Dockerfile
-    container_name: prod_php83
-    restart: unless-stopped
-    volumes:
-      - ./www:/var/www/html
-      - ./php/custom-php.ini:/usr/local/etc/php/conf.d/z-custom-php.ini:ro
-      - ./php/custom-fpm.conf:/usr/local/etc/php-fpm.d/z-custom-fpm.conf:ro
-    depends_on:
-      redis:
-        condition: service_healthy
-    healthcheck:
-      test: ["CMD-SHELL", "php -r '$$socket = @fsockopen(\"127.0.0.1\", 9000, $$errno, $$error, 2); if (false === $$socket) { exit(1); } fclose($$socket);'"]
-      interval: 10s
-      timeout: 5s
-      retries: 10
-      start_period: 10s
-    logging:
-      driver: "json-file"
-      options:
-        max-size: "10m"
-        max-file: "3"
-    networks:
-      - frontend
-      - backend
+  # php83:
+  #   build:
+  #     context: ./php
+  #     dockerfile: 8.3.Dockerfile
+  #   container_name: prod_php83
+  #   restart: unless-stopped
+  #   volumes:
+  #     - ./www:/var/www/html
+  #     - ./php/custom-php.ini:/usr/local/etc/php/conf.d/z-custom-php.ini:ro
+  #     - ./php/custom-fpm.conf:/usr/local/etc/php-fpm.d/z-custom-fpm.conf:ro
+  #   depends_on:
+  #     redis:
+  #       condition: service_healthy
+  #   healthcheck:
+  #     test: ["CMD-SHELL", "php -r '$$socket = @fsockopen(\"127.0.0.1\", 9000, $$errno, $$error, 2); if (false === $$socket) { exit(1); } fclose($$socket);'"]
+  #     interval: 10s
+  #     timeout: 5s
+  #     retries: 10
+  #     start_period: 10s
+  #   logging:
+  #     driver: "json-file"
+  #     options:
+  #       max-size: "10m"
+  #       max-file: "3"
+  #   networks:
+  #     - frontend
+  #     - backend
 
   mariadb:
     image: mariadb:10.11
@@ -141,26 +141,26 @@ services:
     networks:
       - backend
 
-  redis:
-    image: redis:7.2-alpine
-    container_name: prod_redis
-    restart: unless-stopped
-    command: redis-server --appendonly yes --maxmemory 256mb --maxmemory-policy allkeys-lru
-    volumes:
-      - redis_data:/data
-    healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-      interval: 10s
-      timeout: 3s
-      retries: 10
-      start_period: 10s
-    logging:
-      driver: "json-file"
-      options:
-        max-size: "10m"
-        max-file: "3"
-    networks:
-      - backend
+  # redis:
+  #   image: redis:7.2-alpine
+  #   container_name: prod_redis
+  #   restart: unless-stopped
+  #   command: redis-server --appendonly yes --maxmemory 256mb --maxmemory-policy allkeys-lru
+  #   volumes:
+  #     - redis_data:/data
+  #   healthcheck:
+  #     test: ["CMD", "redis-cli", "ping"]
+  #     interval: 10s
+  #     timeout: 3s
+  #     retries: 10
+  #     start_period: 10s
+  #   logging:
+  #     driver: "json-file"
+  #     options:
+  #       max-size: "10m"
+  #       max-file: "3"
+  #   networks:
+  #     - backend
 
   phpmyadmin:
     image: phpmyadmin/phpmyadmin:5
